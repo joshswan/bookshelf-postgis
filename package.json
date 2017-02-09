@@ -1,0 +1,43 @@
+{
+  "name": "bookshelf-postgis",
+  "version": "0.1.0",
+  "description": "Bookshelf plugin for parsing & serializing PostGIS columns",
+  "author": "Josh Swan <josh@sportifik.com>",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joshswan/bookshelf-postgis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/joshswan/bookshelf-postgis/issues"
+  },
+  "keywords": [
+    "bookshelf",
+    "plugin",
+    "postgis",
+    "postgres",
+    "geometry",
+    "geography"
+  ],
+  "files": [
+    "index.js",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "lint": "eslint index.js"
+  },
+  "peerDependencies": {
+    "bookshelf": "^0.10.2"
+  },
+  "dependencies": {
+    "knex": "^0.12.6",
+    "wkx": "^0.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^3.14.1",
+    "eslint-config-airbnb-base": "^11.0.1",
+    "eslint-plugin-import": "^2.2.0"
+  }
+}
