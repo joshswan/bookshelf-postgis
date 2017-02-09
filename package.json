@@ -1,6 +1,6 @@
 {
   "name": "bookshelf-postgis",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Bookshelf plugin for parsing & serializing PostGIS columns",
   "author": "Josh Swan <josh@sportifik.com>",
   "license": "MIT",
