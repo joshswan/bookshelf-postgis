@@ -12,6 +12,9 @@ module.exports = (bookshelf) => {
   const BaseModel = bookshelf.Model;
 
   bookshelf.Model = BaseModel.extend({
+    geography: null,
+    geometry: null,
+
     format(attributes) {
       // Convert geography attributes to raw ST_MakePoint calls with [lon, lat] as bindings
       if (this.geography) {
