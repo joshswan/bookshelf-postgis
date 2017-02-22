@@ -1,7 +1,7 @@
 # bookshelf-postgis
 [![NPM Version][npm-image]][npm-url] [![Build Status][build-image]][build-url] [![Dependency Status][depstat-image]][depstat-url] [![Dev Dependency Status][devdepstat-image]][devdepstat-url]
 
-Bookshelf plugin for PostGIS to automatically parse and serialize geometry/geography columns on fetch and save, respectively. Geography columns are parsed to arrays (`[lon, lat]`), and geometry columns are parsed to GeoJSON.
+Bookshelf plugin for PostGIS to automatically parse and serialize geometry/geography columns on fetch and save, respectively. Geography columns are parsed to specified attributes (e.g. `[lon, lat]` results in a `lon` and a `lat` attribute on the model), and geometry columns are parsed to GeoJSON.
 
 ***NOTE:*** Geography columns must already be WGS 84 lon lat (SRID:4326)!
 
@@ -22,7 +22,12 @@ And add `geography` or `geometry` columns to your model:
 ```javascript
 const User = bookshelf.Model.extend({
   tableName: 'users',
-  geography: ['location'],
+  geography: {
+    location: ['lon', 'lat'],
+    // Use dot notation to specify deeper nesting
+    geo: ['address.lat', 'address.lat'],
+    geo2: ['location[0]', 'location[1]'],
+  },
   geometry: ['geometry']
 });
 ```
