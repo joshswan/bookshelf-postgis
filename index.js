@@ -25,8 +25,11 @@ module.exports = (bookshelf) => {
       if (this.geography) {
         Object.keys(this.geography).forEach((key) => {
           const fields = Array.isArray(this.geography[key]) ? this.geography[key] : ['lon', 'lat'];
+          const values = fields.map(field => get(attributes, field)).filter(value => typeof value === 'number');
 
-          attributes[key] = bookshelf.knex.raw('ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography', [get(attributes, fields[0]), get(attributes, fields[1])]);
+          if (values.length === 2) {
+            attributes[key] = bookshelf.knex.raw('ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography', values);
+          }
 
           omitFields = [...omitFields, ...fields];
         });
@@ -49,13 +52,15 @@ module.exports = (bookshelf) => {
       // Parse geography columns to specified fields
       if (this.geography) {
         Object.keys(this.geography).forEach((key) => {
-          const fields = Array.isArray(this.geography[key]) ? this.geography[key] : ['lon', 'lat'];
+          if (attributes[key]) {
+            const fields = Array.isArray(this.geography[key]) ? this.geography[key] : ['lon', 'lat'];
 
-          wkx.Geometry.parse(Buffer.from(attributes[key], 'hex')).toGeoJSON().coordinates.forEach((coordinate, index) => {
-            set(attributes, fields[index], coordinate);
-          });
+            wkx.Geometry.parse(Buffer.from(attributes[key], 'hex')).toGeoJSON().coordinates.forEach((coordinate, index) => {
+              set(attributes, fields[index], coordinate);
+            });
 
-          omitFields = [...omitFields, key];
+            omitFields = [...omitFields, key];
+          }
         });
       }
 
