@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "knex": "^0.12.6",
+    "lodash": "^4.17.4",
     "wkx": "^0.4.1"
   },
   "devDependencies": {

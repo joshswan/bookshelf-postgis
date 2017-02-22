@@ -6,6 +6,9 @@
  * https://github.com/joshswan/bookshelf-postgis/blob/master/LICENSE
  */
 
+const get = require('lodash/get');
+const omit = require('lodash/omit');
+const set = require('lodash/set');
 const wkx = require('wkx');
 
 module.exports = (bookshelf) => {
@@ -16,10 +19,16 @@ module.exports = (bookshelf) => {
     geometry: null,
 
     format(attributes) {
+      let omitFields = [];
+
       // Convert geography attributes to raw ST_MakePoint calls with [lon, lat] as bindings
       if (this.geography) {
-        this.geography.forEach((attr) => {
-          if (attributes[attr]) attributes[attr] = bookshelf.knex.raw('ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography', attributes[attr]);
+        Object.keys(this.geography).forEach((key) => {
+          const fields = Array.isArray(this.geography[key]) ? this.geography[key] : ['lon', 'lat'];
+
+          attributes[key] = bookshelf.knex.raw('ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography', [get(attributes, fields[0]), get(attributes, fields[1])]);
+
+          omitFields = [...omitFields, ...fields];
         });
       }
 
@@ -31,14 +40,22 @@ module.exports = (bookshelf) => {
       }
 
       // Call parent format method
-      return BaseModel.prototype.format.apply(this, [attributes]);
+      return BaseModel.prototype.format.apply(this, [omit(attributes, omitFields)]);
     },
 
     parse(attributes) {
-      // Parse geography columns to [lon, lat]
+      let omitFields = [];
+
+      // Parse geography columns to specified fields
       if (this.geography) {
-        this.geography.forEach((attr) => {
-          if (attributes[attr]) attributes[attr] = wkx.Geometry.parse(Buffer.from(attributes[attr], 'hex')).toGeoJSON().coordinates;
+        Object.keys(this.geography).forEach((key) => {
+          const fields = Array.isArray(this.geography[key]) ? this.geography[key] : ['lon', 'lat'];
+
+          wkx.Geometry.parse(Buffer.from(attributes[key], 'hex')).toGeoJSON().coordinates.forEach((coordinate, index) => {
+            set(attributes, fields[index], coordinate);
+          });
+
+          omitFields = [...omitFields, key];
         });
       }
 
@@ -50,7 +67,7 @@ module.exports = (bookshelf) => {
       }
 
       // Call parent parse method
-      return BaseModel.prototype.parse.apply(this, [attributes]);
+      return BaseModel.prototype.parse.apply(this, [omit(attributes, omitFields)]);
     },
   });
 };
