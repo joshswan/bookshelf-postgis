@@ -1,7 +1,7 @@
 /*!
  * Bookshelf-PostGIS
  *
- * Copyright 2017 Josh Swan
+ * Copyright 2017 Josh Swan and contributors
  * Released under the MIT license
  * https://github.com/joshswan/bookshelf-postgis/blob/master/LICENSE
  */
@@ -12,26 +12,24 @@ const set = require('lodash/set');
 const wkx = require('wkx');
 
 module.exports = (bookshelf) => {
-  const BaseModel = bookshelf.Model;
+  const proto = bookshelf.Model.prototype;
 
-  bookshelf.Model = BaseModel.extend({
+  bookshelf.Model = bookshelf.Model.extend({
     geography: null,
     geometry: null,
 
     format(attributes) {
-      let omitFields = [];
-
       // Convert geography attributes to raw ST_MakePoint calls with [lon, lat] as bindings
       if (this.geography) {
         Object.keys(this.geography).forEach((key) => {
           const fields = Array.isArray(this.geography[key]) ? this.geography[key] : ['lon', 'lat'];
           const values = fields.map(field => get(attributes, field)).filter(value => typeof value === 'number');
 
+          attributes = omit(attributes, fields);
+
           if (values.length === 2) {
             attributes[key] = bookshelf.knex.raw('ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography', values);
           }
-
-          omitFields = [...omitFields, ...fields];
         });
       }
 
@@ -43,23 +41,20 @@ module.exports = (bookshelf) => {
       }
 
       // Call parent format method
-      return BaseModel.prototype.format.apply(this, [omit(attributes, omitFields)]);
+      return proto.format.call(this, attributes);
     },
 
     parse(attributes) {
-      let omitFields = [];
-
-      // Parse geography columns to specified fields
       if (this.geography) {
         Object.keys(this.geography).forEach((key) => {
           if (attributes[key]) {
+            const valInHex = attributes[key];
             const fields = Array.isArray(this.geography[key]) ? this.geography[key] : ['lon', 'lat'];
+            delete attributes.key;
 
-            wkx.Geometry.parse(Buffer.from(attributes[key], 'hex')).toGeoJSON().coordinates.forEach((coordinate, index) => {
+            wkx.Geometry.parse(Buffer.from(valInHex, 'hex')).toGeoJSON().coordinates.forEach((coordinate, index) => {
               set(attributes, fields[index], coordinate);
             });
-
-            omitFields = [...omitFields, key];
           }
         });
       }
@@ -72,7 +67,7 @@ module.exports = (bookshelf) => {
       }
 
       // Call parent parse method
-      return BaseModel.prototype.parse.apply(this, [omit(attributes, omitFields)]);
+      return proto.parse.call(this, attributes);
     },
   });
 };

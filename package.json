@@ -29,10 +29,9 @@
     "lint": "eslint index.js"
   },
   "peerDependencies": {
-    "bookshelf": "^0.10.2"
+    "bookshelf": "^0.10.3"
   },
   "dependencies": {
-    "knex": "^0.12.6",
     "lodash": "^4.17.4",
     "wkx": "^0.4.1"
   },
