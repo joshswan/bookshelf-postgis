@@ -25,7 +25,7 @@ const User = bookshelf.Model.extend({
   geography: {
     location: ['lon', 'lat'],
     // Use dot notation to specify deeper nesting
-    geo: ['address.lat', 'address.lat'],
+    geo: ['address.lon', 'address.lat'],
     geo2: ['location[0]', 'location[1]'],
   },
   geometry: ['geometry']
