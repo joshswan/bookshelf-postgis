@@ -1,7 +1,7 @@
 /*!
  * Bookshelf-PostGIS
  *
- * Copyright 2017 Josh Swan and contributors
+ * Copyright 2017-2018 Josh Swan and contributors
  * Released under the MIT license
  * https://github.com/joshswan/bookshelf-postgis/blob/master/LICENSE
  */
