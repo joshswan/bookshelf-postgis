@@ -15,7 +15,9 @@ npm install bookshelf-postgis --save
 
 Apply the plugin:
 ```javascript
-bookshelf.plugin('bookshelf-postgis');
+const postgis = require('bookshelf-postgis');
+
+bookshelf.plugin(postgis);
 ```
 
 And add `geography` or `geometry` columns to your model:
